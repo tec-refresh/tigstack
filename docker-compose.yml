@@ -1,0 +1,57 @@
+version: '3'
+services:
+
+ grafana:
+  image: grafana/grafana
+  build: 
+   context: grafana/.  
+  container_name: gitstack_grafana
+  restart: always
+  ports:
+   - 7000:3000
+  volumes:
+   - grafana-volume:/vol01/Docker/monitoring
+
+ influxdb:
+  image: influxdb:1.8
+  container_name: gitstack_influxdb
+  restart: always
+  ports:
+   - 8086:8086
+   - 8088:8088
+   - 8083:8083
+  volumes:
+   - influxdb-volume:/vol01/Docker/monitoring
+  environment:
+   - INFLUXDB_DB=telegraf
+   - INFLUXDB_USER=telegraf
+   - INFLUXDB_ADMIN_ENABLED=true
+   - INFLUXDB_ADMIN_USER=admin
+   - INFLUXDB_ADMIN_PASSWORD=Welcome1234
+
+ telegraf:
+  image: telegraf
+  container_name: gitstack_telegraf
+  restart: always
+  command: "--config-directory /etc/telegraf/telegraf.d"
+  extra_hosts:
+   - influxdb:192.168.245.102
+  environment:
+   HOST_PROC: /rootfs/proc
+   HOST_SYS: /rootfs/sys
+   HOST_ETC: /rootfs/etc
+  volumes:
+   - .\telegraf\telegraf.conf:/etc/telegraf/telegraf.conf:ro
+   - .\telegraf\telegraf.d:/etc/telegraf/telegraf.d/:ro
+   - /var/run/docker.sock:/var/run/docker.sock:ro
+   - /sys:/rootfs/sys:ro
+   - /proc:/rootfs/proc:ro
+   - /etc:/rootfs/etc:ro
+
+
+
+volumes:
+ grafana-volume:
+  external: true
+ influxdb-volume:
+  external: true
