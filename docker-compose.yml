@@ -33,7 +33,7 @@ services:
   restart: always
   command: "--config-directory /etc/telegraf/telegraf.d"
   extra_hosts:
-   - influxdb:192.168.245.102
+   - influxdb:your-ip
   environment:
    HOST_PROC: /rootfs/proc
    HOST_SYS: /rootfs/sys
